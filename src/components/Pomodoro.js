@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 
 const Pomodoro = (props) => {
-  const [timer, setTimer] = useState(5);
+  const [timer, setTimer] = useState(1500);
   const [isActive, setIsActive] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [onBreak, setOnBreak] = useState(false);
-  const [workTime, setWorkTime] = useState(5);
-  const [breakTime, setBreakTime] = useState(3);
+  const [workTime, setWorkTime] = useState(1500);
+  const [breakTime, setBreakTime] = useState(300);
 
   const toggleActive = () => {
     if (isCompleted) setIsCompleted(false);
@@ -28,16 +28,20 @@ const Pomodoro = (props) => {
     setIsActive(false);
     setTimer(workTime);
     setIsCompleted(false);
+    document.querySelector(".pomodoro").className = "pomodoro pomodoro--work";
+    document.querySelector("body").className = "";
   };
 
   const changeWorkInterval = (e) => {
-    setWorkTime(e.target.value);
-    if (!onBreak) setTimer(workTime);
+    const newTime = e.target.value * 60;
+    setWorkTime(newTime);
+    if (!onBreak) setTimer(newTime);
   };
 
   const changeBreakInterval = (e) => {
-    setBreakTime(e.target.value);
-    if (onBreak) setTimer(workTime);
+    const newTime = e.target.value * 60;
+    setBreakTime(newTime);
+    if (onBreak) setTimer(newTime);
   };
 
   useEffect(() => {
@@ -49,12 +53,18 @@ const Pomodoro = (props) => {
         setIsActive(false);
         setIsCompleted(true);
         setOnBreak(true);
-        setTimer(workTime);
+        setTimer(breakTime);
+        document.querySelector(".pomodoro").className =
+          "pomodoro pomodoro--break";
+        document.querySelector("body").className = "body--break";
       } else {
         setIsActive(false);
         setIsCompleted(true);
         setOnBreak(false);
-        setTimer(breakTime);
+        setTimer(workTime);
+        document.querySelector(".pomodoro").className =
+          "pomodoro pomodoro--work";
+        document.querySelector("body").className = "";
       }
     }
 
@@ -67,31 +77,49 @@ const Pomodoro = (props) => {
   }, [isActive, isCompleted, timer, onBreak, breakTime, workTime]);
 
   return (
-    <div className="pomodoro-box">
-      <h3>{onBreak ? "Rest and recuperate!" : "Let's get to work!"}</h3>
-      <p>{`${formattedMinutes(timer)}:${formattedSeconds(timer)}`}</p>
-      <button onClick={toggleActive} id="clock-control">
-        {isActive ? "Stop" : "Start"}
-      </button>
-      <button onClick={resetTimer}>Reset</button>
-      Break
-      <input
-        disabled={isActive}
-        id="break-toggle"
-        type="range"
-        max="55"
-        min="15"
-        onChange={changeBreakInterval}
-      />
-      Work
-      <input
-        disabled={isActive}
-        id="work-toggle"
-        type="range"
-        max="55"
-        min="15"
-        onChange={changeWorkInterval}
-      />
+    <div className="pomodoro pomodoro--work">
+      <h3 className="pomodoro__status">
+        {onBreak ? "Rest and recuperate!" : "Let's get to work!"}
+      </h3>
+      <p className="pomodoro__timer">
+        {`${formattedMinutes(timer)}:${formattedSeconds(timer)}`}
+      </p>
+      <div className="pomodoro__buttons">
+        <button className="btn" onClick={toggleActive} id="clock-control">
+          {isActive ? "Stop" : "Start"}
+        </button>
+        <button className="btn" onClick={resetTimer}>
+          Reset
+        </button>
+      </div>
+      <div className="pomodoro__ranges">
+        <div className="pomodoro__ranges--break">
+          <label for="break-toggle">Break Interval</label>
+          <input
+            disabled={isActive}
+            id="break-toggle"
+            type="range"
+            max="15"
+            min="5"
+            step="5"
+            onChange={changeBreakInterval}
+          />
+          <span id="break-time">{breakTime / 60} minutes</span>
+        </div>
+        <div className="pomodoro__ranges--work">
+          <label for="work-toggle">Work Interval</label>
+          <input
+            disabled={isActive}
+            id="work-toggle"
+            type="range"
+            max="45"
+            min="25"
+            step="5"
+            onChange={changeWorkInterval}
+          />
+          <span id="work-time">{workTime / 60} minutes</span>
+        </div>
+      </div>
     </div>
   );
 };
