@@ -30,6 +30,21 @@ const Pomodoro = (props) => {
     setIsCompleted(false);
     document.querySelector(".pomodoro").className = "pomodoro pomodoro--work";
     document.querySelector("body").className = "";
+    document.title = "Pomodoro Timer";
+  };
+
+  const forceBreakActive = () => {
+    setOnBreak(true);
+    setTimer(breakTime);
+    document.querySelector(".pomodoro").className = "pomodoro pomodoro--break";
+    document.querySelector("body").className = "body--break";
+  };
+
+  const forceWorkActive = () => {
+    setOnBreak(false);
+    setTimer(workTime);
+    document.querySelector(".pomodoro").className = "pomodoro pomodoro--work";
+    document.querySelector("body").className = "";
   };
 
   const changeWorkInterval = (e) => {
@@ -72,12 +87,31 @@ const Pomodoro = (props) => {
       decrementClock = setInterval(() => {
         setTimer(timer - 1);
       }, 1000);
+      document.title = `${formattedMinutes(timer)}:${formattedSeconds(
+        timer
+      )} - Let's get to work!`;
     }
     return () => clearInterval(decrementClock);
   }, [isActive, isCompleted, timer, onBreak, breakTime, workTime]);
 
   return (
     <div className="pomodoro pomodoro--work">
+      <div className="pomodoro__select-active">
+        <button
+          className="pomodoro__select-active__button"
+          onClick={forceWorkActive}
+          disabled={isActive}
+        >
+          Pomodoro
+        </button>
+        <button
+          className="pomodoro__select-active__button"
+          onClick={forceBreakActive}
+          disabled={isActive}
+        >
+          Break
+        </button>
+      </div>
       <h3 className="pomodoro__status">
         {onBreak ? "Rest and recuperate!" : "Let's get to work!"}
       </h3>
